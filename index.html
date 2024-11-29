@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    
     <title>Sorter</title>
     <style>
       body {
@@ -61,10 +62,37 @@
 
       }
       .progressContainer {
-        background-color: greenyellow;
-        width: 50%;
+        width: 605px;
         height: 50px;
-        
+        padding: 10px;
+        position: relative;
+      }
+      .progressBorder {
+        background-color: white;
+        border: 1px solid rgb(106, 106, 106); /* Add border width */
+        border-radius: 5px;
+        width: 100%;
+      }
+      .progressCounter {
+          font-family: sans-serif;
+          font-size: 20px;
+          text-align: center;
+          color: rgb(0, 0, 0);
+          position: absolute;
+          top: 50%;
+          left: 40px;
+          top: 15px;
+          transform: translate(-50%, -50%);
+          z-index: 1;
+          transition: left 0.25s ease-in-out;
+      }
+      .progressBar {
+          border: 2px solid rgb(0, 0, 0); /* Add border width */
+          border-radius: 5px;
+          height: 30px;
+          width: 75%;
+          background-color: green;
+          transition: width 0.25s ease-in-out;
       }
       .selectionContainer {
         height: fit-content;
@@ -120,6 +148,7 @@
         width: 150;
       }
     </style>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <script defer src="script.js"></script>
   </head>
   <body>
@@ -129,7 +158,12 @@
         <h1 id="roundLabel">Test</h1>
       </div>
       <div class="sorterContainer">
-          <div class="progressContainer"></div>
+          <div class="progressContainer">
+            <div class="progressBorder">
+              <h3 class="progressCounter">50%</h3>
+              <div class="progressBar w3-green"></div>
+            </div>
+        </div>
           <div class="selectionContainer">
             <div class="optionContainer">
               <div class="imgContainer">
