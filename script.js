@@ -5,11 +5,11 @@ const btn1 = document.querySelector('#btn1');
 const btn2 = document.querySelector('#btn2');
 const img1 = document.querySelector('#img1');
 const img2 = document.querySelector('#img2');
-const rounds = document.querySelector('#roundContainer');
-const roundLbl = document.querySelector('#roundLabel');
-const progressBar = document.querySelector('.progressBar');
-const progressCounter = document.querySelector('.progressCounter');
-const btns = document.querySelectorAll('.selectionButton');
+const rounds = document.querySelector('#round__container');
+const roundLbl = document.querySelector('#round__label');
+const progressBar = document.querySelector('.progress__bar');
+const progressCounter = document.querySelector('.progress__counter');
+const btns = document.querySelectorAll('.sorter__selection__button');
 
 class App {
   defaultImg = `imgs/default.webp`;
