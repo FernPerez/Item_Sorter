@@ -71,8 +71,7 @@ h1 {
 }
 .main__sub__container {
   background-color: rgb(212, 212, 212);
-  min-height: 50%;
-  max-height: fit-content;
+  min-height: 500px;
   max-width: 95%;
   margin: 2%;
   margin-top: 1%;
@@ -142,6 +141,7 @@ h1 {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  /* visibility: hidden; */
 }
 
 .results__result__container--big {
@@ -190,6 +190,47 @@ h1 {
   flex-direction: row;
   align-items: center;
 }
+
+.results__container--remainder {
+  background-color: rgb(84, 129, 129);
+  width: 550px; /* Fixed table width */
+  height: fit-content;
+  padding: 1px;
+  margin-top: 10px;
+
+  display: table;
+  table-layout: fixed; /* Enforce fixed column widths */
+  align-items: center;
+}
+
+.results_result_remainder_row {
+  display: table-row;
+}
+
+.results_result_remainder_rank_col {
+  display: table-cell;
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  height: 15px;
+  width: 5%; /* Strict column width */
+  overflow: hidden; /* Prevent overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+.results_result_remainder_entry_col {
+  display: table-cell;
+  padding: 10px;
+  border: 1px solid #ddd;
+  text-align: left;
+  height: 15px;
+  width: 95%; /* Strict column width */
+  overflow: hidden; /* Prevent overflow */
+  text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
 .results__result__img__container--big {
   background-color: white;
   height: 187.5px;

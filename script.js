@@ -11,6 +11,8 @@ const progressBar = document.querySelector('.progress__bar');
 const progressCounter = document.querySelector('.progress__counter');
 const btns = document.querySelectorAll('.sorter__selection__button');
 
+const sorterContainer = document.querySelector('.sorter__container');
+
 class App {
   defaultImg = `imgs/default.webp`;
   imgNames = new Map();
@@ -28,21 +30,21 @@ class App {
     'Rias Gremory',
     'Monika',
     'Nobara Kugisaki',
-    // // Chainsaw Man ----------------------------------------------------
-    // 'Makima',
-    // 'Reze',
-    // 'Power',
-    // 'Kobeni Higashiyama',
-    // 'Asa Mitaka',
-    // // Touhou ----------------------------------------------------
-    // 'Reisen Udongein',
-    // 'Reimu Hakurei',
-    // 'Sakuya Izayoi',
-    // // ZZZ ----------------------------------------------------
-    // 'Ellen Joe',
-    // 'Zhu Yuan',
-    // 'Jane Doe',
-    // 'Caesar King',
+    // Chainsaw Man ----------------------------------------------------
+    'Makima',
+    'Reze',
+    'Power',
+    'Kobeni Higashiyama',
+    'Asa Mitaka',
+    // Touhou ----------------------------------------------------
+    'Reisen Udongein',
+    'Reimu Hakurei',
+    'Sakuya Izayoi',
+    // ZZZ ----------------------------------------------------
+    'Ellen Joe',
+    'Zhu Yuan',
+    'Jane Doe',
+    'Caesar King',
     // 'Burnice White',
     // // 'Yanagi Tsukishiro',
     // 'Miyabi Hoshimi',
@@ -366,6 +368,72 @@ class App {
     }
     results.sort((a, b) => a[1] - b[1]);
     console.log(results);
+    this._renderResults(results);
+  }
+
+  _renderResults(results) {
+    console.log(results[0]);
+    sorterContainer.insertAdjacentHTML(
+      'afterend',
+      `<div class="results__container">
+        <div class="results__result__container--big results__result__container--first">
+          <div class="results__result__img__container--big">
+            <img src="./imgs/${this.imgNames.get(
+              results[0][0]
+            )}" class="results__result__img" />
+          </div>
+          <h2 class="results__result__name--big">1. ${results[0][0]}</h2>
+        </div>
+        <div class="results__result__container--big results__result__container--second">
+          <div class="results__result__img__container--big">
+            <img src="./imgs/${this.imgNames.get(
+              results[1][0]
+            )}" class="results__result__img" />
+          </div>
+          <h2 class="results__result__name--big">2. ${results[1][0]}</h2>
+        </div>
+        <div class="results__result__container--big results__result__container--third">
+          <div class="results__result__img__container--big">
+            <img src="./imgs/${this.imgNames.get(
+              results[2][0]
+            )}" class="results__result__img">
+          </div>
+          <h2 class="results__result__name--big">3. ${results[2][0]}</h2>
+        </div>
+        ${this._renderSecondResults(results) || ''}
+        
+        <div class="results__container--remainder">
+          <div class="results_result_remainder_row">
+            <div class="results_result_remainder_rank_col">19. </div>
+            <div class="results_result_remainder_entry_col">Row 1, Column 2</div>
+          </div>
+          <div class="results_result_remainder_row">
+            <div class="results_result_remainder_rank_col">20. </div>
+            <div class="results_result_remainder_entry_col">Row 1, Column 2</div>
+          </div>
+      </div>`
+    );
+  }
+
+  _renderSecondResults(results) {
+    let i = 3;
+    if (i >= results.length) return;
+    let html = `<div class="results__container--four__to__eighteen">`;
+    while (i < results.length && i <= 17) {
+      html += `<div class="results__result__container--med">
+            <div class="results__result__img__container--med">
+              <img src="./imgs/${this.imgNames.get(
+                results[i][0]
+              )}" class="results__result__img">
+            </div>
+            <h2 class="results__result__name--med">${i + 1}. ${
+        results[i][0]
+      }</h2>
+          </div>`;
+      i++;
+    }
+    html += `</div>`;
+    return html;
   }
 
   _getScore(rowInp) {
