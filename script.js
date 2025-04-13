@@ -110,19 +110,19 @@ class App {
     // // 'Xilonen',
     // // 'Mavuika',
     // // Fate Series ----------------------------------------------------
-    // 'Artoria Pendragon',
-    // `Jeanne d'Arc`,
-    // 'Nero Claudius',
-    // 'Rin Tohsaka',
-    // 'Musashi Miyamoto',
-    // 'Tamamo-no-Mae',
-    // 'Ushiwakamaru',
-    // 'Artoria Alter',
-    // 'Jeanne Alter',
-    // 'Florence Nightingale',
-    // 'Morgan Le Fay',
-    // 'Mordred',
-    // 'Tomoe Gozen',
+    'Artoria Pendragon',
+    `Jeanne d'Arc`,
+    'Nero Claudius',
+    'Rin Tohsaka',
+    'Musashi Miyamoto',
+    'Tamamo-no-Mae',
+    'Ushiwakamaru',
+    'Artoria Alter',
+    'Jeanne Alter',
+    'Florence Nightingale',
+    'Morgan Le Fay',
+    'Mordred',
+    'Tomoe Gozen',
     // // Blue Archive ----------------------------------------------------
     // 'Aru',
     // 'Toki',
@@ -372,7 +372,9 @@ class App {
   }
 
   _renderResults(results) {
+    // Renders the HTML to display the results when the sort is over.
     console.log(results[0]);
+    // Display Top 3 Results
     sorterContainer.insertAdjacentHTML(
       'afterend',
       `<div class="results__container">
@@ -401,21 +403,13 @@ class App {
           <h2 class="results__result__name--big">3. ${results[2][0]}</h2>
         </div>
         ${this._renderSecondResults(results) || ''}
-        
-        <div class="results__container--remainder">
-          <div class="results_result_remainder_row">
-            <div class="results_result_remainder_rank_col">19. </div>
-            <div class="results_result_remainder_entry_col">Row 1, Column 2</div>
-          </div>
-          <div class="results_result_remainder_row">
-            <div class="results_result_remainder_rank_col">20. </div>
-            <div class="results_result_remainder_entry_col">Row 1, Column 2</div>
-          </div>
+        ${this._renderRemainingResults(results) || ''}    
       </div>`
     );
   }
 
   _renderSecondResults(results) {
+    // Returns HTML for the results ranked 4 up to 18 if applicable
     let i = 3;
     if (i >= results.length) return;
     let html = `<div class="results__container--four__to__eighteen">`;
@@ -429,6 +423,24 @@ class App {
             <h2 class="results__result__name--med">${i + 1}. ${
         results[i][0]
       }</h2>
+          </div>`;
+      i++;
+    }
+    html += `</div>`;
+    return html;
+  }
+
+  _renderRemainingResults(results) {
+    // Returns the HTMl for any remaining results after rank 18 if applicable
+    let i = 18;
+    if (i >= results.length) return;
+    let html = `<div class="results__container--remainder">`;
+    while (i < results.length) {
+      html += `<div class="results_result_remainder_row">
+            <div class="results_result_remainder_rank_col">${i + 1}. </div>
+            <div class="results_result_remainder_entry_col">${
+              results[i][0]
+            }</div>
           </div>`;
       i++;
     }
