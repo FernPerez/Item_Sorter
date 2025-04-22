@@ -3,6 +3,7 @@
 
 const btn1 = document.querySelector('#btn1');
 const btn2 = document.querySelector('#btn2');
+const undo = document.querySelector('#undo');
 const img1 = document.querySelector('#img1');
 const img2 = document.querySelector('#img2');
 const rounds = document.querySelector('#round__container');
@@ -21,6 +22,7 @@ class App {
   progress = -1;
   lastPick = undefined;
   divergences = [];
+  states = [];
   entries = [
     // Misc ----------------------------------------------------
     '2B',
@@ -140,6 +142,9 @@ class App {
     btn1.addEventListener('click', e => this._select(e.target.textContent));
     btn2.addEventListener('click', e => this._select(e.target.textContent));
 
+    // Add undo call to undo button
+    undo.addEventListener('click', e => this._undo());
+
     // Randomize the entries
     this._shuffleArray(this.entries);
 
@@ -195,6 +200,10 @@ class App {
     console.log(
       `You selected ${choice}!` // Current row and column are ${row}x${column}`
     );
+
+    // Update sort states list
+    this._updateStatesList();
+
     // If the selection is different than the previous selection, a divergence has occured.
     if (choice !== this.lastPick && this.lastPick !== undefined) {
       this.divergences.push(this.entries.indexOf(this.lastPick));
@@ -478,6 +487,39 @@ class App {
     } else {
       progressCounter.style.left = '40px';
     }
+  }
+  _updateStatesList() {
+    // Create new state based off current sort state and push it to states list
+    const state = new State(
+      this.matrix,
+      [this.entries[this.row], this.entries[this.column]],
+      this.lastPick
+    );
+    this.states.push(state);
+    // No more than 10 previous states saved.
+    if (this.states.length > 10) {
+      this.states.shift();
+    }
+    console.log(this.states);
+  }
+
+  _undo() {
+    // Reverts sort  state to previous turn by going back to the last state in the states list
+    if (this.states.length === 0) {
+      console.log('Maximum undo depth reached. Cannot go back further!');
+      return;
+    }
+    console.log(this.states.pop());
+  }
+}
+
+// State class used to store the data of the previous state of the sort before progress is made so as to
+// revert back to it when the user clicks "Undo"
+class State {
+  constructor(matrix, choices, lastPick) {
+    this.matrix = matrix;
+    this.choices = choices;
+    this.lastPick = lastPick;
   }
 }
 
