@@ -170,12 +170,12 @@ class App {
     roundLbl.textContent = `Round ${this.roundNum}`;
     this._updateProgress();
   }
-  _loadBothChoices(choice1, choice2) {
-    // Updates the contents of both buttons, images, and round label
+  _loadBothChoices(choice1, choice2, change = 'up') {
+    // Updates the contents of both buttons, images
     btn1.textContent = choice1;
     btn2.textContent = choice2;
+    this._updateRounds(change);
     this._displayImgs(choice1, choice2);
-    this._updateRounds();
     console.log(`${choice1} vs ${choice2}`);
   }
   _displayImgs(choice1, choice2) {
@@ -467,15 +467,21 @@ class App {
     return Math.abs(score - this.entries.length);
   }
 
-  _updateRounds() {
+  _updateRounds(change) {
     // Update the rounds display
-    this.roundNum++;
+    if (change === 'up') this.roundNum++;
+    else this.roundNum--;
+
     roundLbl.textContent = `Round ${this.roundNum}`;
   }
 
-  _updateProgress() {
+  _updateProgress(change = 'up') {
     // Update progress bar
-    this.progress++;
+    if (change === 'up') this.progress++;
+    else this.progress = change;
+
+    console.log(`Progress: ${this.progress}`);
+
     const percentage = ((this.progress / this.maxProgress) * 100).toFixed(2);
     // console.log(
     //   `Progress is ${this.progress}/${this.maxProgress}: ${percentage}%`
@@ -489,18 +495,24 @@ class App {
     }
   }
   _updateStatesList() {
+    // Create a deep copy of the matrix
+    const matrixCopy = this.matrix.map(row => [...row]);
+
     // Create new state based off current sort state and push it to states list
     const state = new State(
-      this.matrix,
+      matrixCopy,
       [this.entries[this.row], this.entries[this.column]],
-      this.lastPick
+      this.lastPick,
+      this.row,
+      this.column,
+      this.progress
     );
     this.states.push(state);
+
     // No more than 10 previous states saved.
     if (this.states.length > 10) {
       this.states.shift();
     }
-    console.log(this.states);
   }
 
   _undo() {
@@ -509,17 +521,41 @@ class App {
       console.log('Maximum undo depth reached. Cannot go back further!');
       return;
     }
-    console.log(this.states.pop());
+
+    // Get last state from states list
+    const lastState = this.states[this.states.length - 1];
+    console.log(lastState);
+
+    // Set Matrix to previous matrix
+    this.matrix = lastState.matrix;
+
+    // Set last pick to previous last pick
+    this.lastPick = lastState.lastPick;
+
+    // Set choices to previous choices and decrease progress
+    this._loadBothChoices(lastState.choices[0], lastState.choices[1], 'down');
+    this._updateProgress(lastState.progress);
+
+    this.row = lastState.row;
+    this.column = lastState.column;
+
+    console.log(this.row);
+    console.log(this.column);
+
+    this.states.pop();
   }
 }
 
 // State class used to store the data of the previous state of the sort before progress is made so as to
 // revert back to it when the user clicks "Undo"
 class State {
-  constructor(matrix, choices, lastPick) {
+  constructor(matrix, choices, lastPick, row, column, progress) {
     this.matrix = matrix;
     this.choices = choices;
     this.lastPick = lastPick;
+    this.row = row;
+    this.column = column;
+    this.progress = progress;
   }
 }
 
