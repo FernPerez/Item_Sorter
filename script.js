@@ -4,6 +4,7 @@
 const btn1 = document.querySelector('#btn1');
 const btn2 = document.querySelector('#btn2');
 const undo = document.querySelector('#undo');
+const tiebtn = document.querySelector('#tie');
 const img1 = document.querySelector('#img1');
 const img2 = document.querySelector('#img2');
 const rounds = document.querySelector('#round__container');
@@ -18,6 +19,7 @@ class App {
   defaultImg = `imgs/default.webp`;
   imgNames = new Map();
   finishedRows = new Map();
+  tieMap = new Map();
   roundNum = 0;
   progress = -1;
   lastPick = undefined;
@@ -145,8 +147,14 @@ class App {
     // Add undo call to undo button
     undo.addEventListener('click', e => this._undo());
 
+    // Add tie call to tie button
+    tiebtn.addEventListener('click', e => this._tie(this.row, this.column));
+
     // Randomize the entries
     this._shuffleArray(this.entries);
+
+    // Populate Tie List with initial empty values.
+    this.entries.map(entry => this.tieMap.set(entry, []));
 
     // Initialize finished rows map and generate img names
     for (let i = 0; i < this.entries.length; i++) {
@@ -279,6 +287,49 @@ class App {
     }
   }
 
+  _tie(choice1, choice2) {
+    // Called to tie the current two choices, making them copy each other's rows and columns in the matrix &
+    // adding them to each other's tie lists
+
+    this._fillWithOne(choice1, choice2);
+    this._fillWithOne(choice2, choice1);
+
+    // Iterate through rows to duplicate everything
+    let check1 = this.matrix[choice1][0];
+    let check2 = this.matrix[choice2][0];
+    let i = 0;
+    // Ensure stopping point in row equals undefined as 0 counts as falsey value
+    while (i < this.entries.length) {
+      console.log(check1, check2);
+      if (check1 === -1 && check2 !== -1 && check2 !== 'x') {
+        this.matrix[choice1][i] = this.matrix[choice2][i];
+        this.matrix[i][choice1] = this.matrix[i][choice2];
+      } else if (check2 === -1 && check1 !== -1 && check1 !== 'x') {
+        this.matrix[choice2][i] = this.matrix[choice1][i];
+        this.matrix[i][choice2] = this.matrix[i][choice1];
+      }
+
+      i++;
+      check1 = this.matrix[choice1][i];
+      check2 = this.matrix[choice2][i];
+    }
+
+    // Load next comparison
+    [this.row, this.column] = this._findNextComparison(
+      this.matrix,
+      this.row + 2,
+      this.column
+    );
+    // No comparisons left, load results and end sort.
+    if (this.row === null) {
+      console.log(`FINISHED`);
+      this._loadResults();
+      return;
+    }
+    // Load next comparison into display
+    this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
+  }
+
   _findNextComparison(entryMatrix, rowInp, colInp) {
     // Called to search for the next comparison to be made and returned to be displayed.
     // Check if the current row has any comparisons left
@@ -356,6 +407,12 @@ class App {
       array[j] = temp;
     }
   }
+
+  // _populateTieList() {
+
+  //   console.log(this.tieMap);
+  // }
+
   _generateMatrix(entries) {
     // Generates a square matrix of the same size as the entries array
     const matrix = new Array(entries.length);
