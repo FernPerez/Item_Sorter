@@ -25,6 +25,7 @@ class App {
   lastPick = undefined;
   divergences = [];
   states = [];
+  tieGroups = new Map();
   entries = [
     // Misc ----------------------------------------------------
     '2B',
@@ -114,19 +115,19 @@ class App {
     // // 'Xilonen',
     // // 'Mavuika',
     // // Fate Series ----------------------------------------------------
-    'Artoria Pendragon',
-    `Jeanne d'Arc`,
-    'Nero Claudius',
-    'Rin Tohsaka',
-    'Musashi Miyamoto',
-    'Tamamo-no-Mae',
-    'Ushiwakamaru',
-    'Artoria Alter',
-    'Jeanne Alter',
-    'Florence Nightingale',
-    'Morgan Le Fay',
-    'Mordred',
-    'Tomoe Gozen',
+    // 'Artoria Pendragon',
+    // `Jeanne d'Arc`,
+    // 'Nero Claudius',
+    // 'Rin Tohsaka',
+    // 'Musashi Miyamoto',
+    // 'Tamamo-no-Mae',
+    // 'Ushiwakamaru',
+    // 'Artoria Alter',
+    // 'Jeanne Alter',
+    // 'Florence Nightingale',
+    // 'Morgan Le Fay',
+    // 'Mordred',
+    // 'Tomoe Gozen',
     // // Blue Archive ----------------------------------------------------
     // 'Aru',
     // 'Toki',
@@ -164,6 +165,9 @@ class App {
 
     // Generate the matrix for this sort
     this.matrix = this._generateMatrix(this.entries);
+
+    // Generate Tie Groups
+    this._generateTieGroups();
 
     // Subtract length to account for spaces filled with x
     this.maxProgress =
@@ -211,6 +215,9 @@ class App {
 
     // Update sort states list
     this._updateStatesList();
+
+    // this._updateTieGroup(this.row, 'increase');
+    // this._updateTieGroup(this.column, 'decrease');
 
     // If the selection is different than the previous selection, a divergence has occured.
     if (choice !== this.lastPick && this.lastPick !== undefined) {
@@ -291,6 +298,18 @@ class App {
     // Called to tie the current two choices, making them copy each other's rows and columns in the matrix &
     // adding them to each other's tie lists
 
+    // Update sort states list
+    this._updateStatesList();
+
+    // Add each entry to tieGroups with the other as a tied item
+    this.tieGroups.get(choice1).push(choice2);
+    this.tieGroups.get(choice2).push(choice1);
+
+    // Propagate ties
+    this._updateTieGroup(choice1, choice2, 'tie');
+    this._updateTieGroup(choice2, choice1, 'tie');
+
+    //Fill each other's comparison spot in the matrix with 1.
     this._fillWithOne(choice1, choice2);
     this._fillWithOne(choice2, choice1);
 
@@ -298,15 +317,16 @@ class App {
     let check1 = this.matrix[choice1][0];
     let check2 = this.matrix[choice2][0];
     let i = 0;
-    // Ensure stopping point in row equals undefined as 0 counts as falsey value
+
     while (i < this.entries.length) {
-      console.log(check1, check2);
       if (check1 === -1 && check2 !== -1 && check2 !== 'x') {
         this.matrix[choice1][i] = this.matrix[choice2][i];
         this.matrix[i][choice1] = this.matrix[i][choice2];
+        this._updateProgress();
       } else if (check2 === -1 && check1 !== -1 && check1 !== 'x') {
         this.matrix[choice2][i] = this.matrix[choice1][i];
         this.matrix[i][choice2] = this.matrix[i][choice1];
+        this._updateProgress();
       }
 
       i++;
@@ -328,6 +348,25 @@ class App {
     }
     // Load next comparison into display
     this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
+  }
+
+  _updateTieGroup(inheritor, inherited, operation) {
+    console.log(inheritor);
+    if (this.tieGroups.get(inheritor).length === 0) return;
+
+    console.log(`${inheritor} has ties!`);
+
+    if (operation === 'tie') {
+      for (const tiedItem of this.tieGroups.get(inheritor)) {
+        if (
+          tiedItem === inherited ||
+          this.tieGroups.get(tiedItem).includes(inherited)
+        )
+          continue;
+        console.log(`${inherited} is not in ${tiedItem}'s list.`);
+        this._tie(tiedItem, inherited);
+      }
+    }
   }
 
   _findNextComparison(entryMatrix, rowInp, colInp) {
@@ -425,6 +464,11 @@ class App {
     }
     // console.log(matrix);
     return matrix;
+  }
+  _generateTieGroups() {
+    for (let i = 0; i <= this.entries.length; i++) {
+      this.tieGroups.set(i, []);
+    }
   }
   _loadResults() {
     // Generates the full list of results in their appropriate rankings
