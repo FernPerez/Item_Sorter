@@ -19,7 +19,7 @@ class App {
   defaultImg = `imgs/default.webp`;
   imgNames = new Map();
   finishedRows = new Map();
-  tieMap = new Map();
+  // tieMap = new Map();
   roundNum = 0;
   progress = -1;
   lastPick = undefined;
@@ -154,8 +154,8 @@ class App {
     // Randomize the entries
     this._shuffleArray(this.entries);
 
-    // Populate Tie List with initial empty values.
-    this.entries.map(entry => this.tieMap.set(entry, []));
+    // // Populate Tie List with initial empty values.
+    // this.entries.map(entry => this.tieMap.set(entry, []));
 
     // Initialize finished rows map and generate img names
     for (let i = 0; i < this.entries.length; i++) {
@@ -606,7 +606,9 @@ class App {
       this.lastPick,
       this.row,
       this.column,
-      this.progress
+      this.progress,
+      this.finishedRows,
+      this.tieGroups
     );
     this.states.push(state);
 
@@ -633,6 +635,12 @@ class App {
     // Set last pick to previous last pick
     this.lastPick = lastState.lastPick;
 
+    // Set finishedRows to previous finished rows
+    this.finishedRows = lastState.finishedRows;
+
+    // Set tieGroups to previous tieGroups
+    this.tieGroups = lastState.tieGroups;
+
     // Set choices to previous choices and decrease progress
     this._loadBothChoices(lastState.choices[0], lastState.choices[1], 'down');
     this._updateProgress(lastState.progress);
@@ -650,13 +658,31 @@ class App {
 // State class used to store the data of the previous state of the sort before progress is made so as to
 // revert back to it when the user clicks "Undo"
 class State {
-  constructor(matrix, choices, lastPick, row, column, progress) {
+  constructor(
+    matrix,
+    choices,
+    lastPick,
+    row,
+    column,
+    progress,
+    finishedRows,
+    tieGroups
+  ) {
     this.matrix = matrix;
     this.choices = choices;
     this.lastPick = lastPick;
     this.row = row;
     this.column = column;
     this.progress = progress;
+
+    // Shallow copy finished rows
+    this.finishedRows = new Map(finishedRows);
+
+    // Deep copy tieGroups
+    this.tieGroups = new Map();
+    for (const [key, value] of tieGroups) {
+      this.tieGroups.set(key, Array.isArray(value) ? [...value] : value);
+    }
   }
 }
 
