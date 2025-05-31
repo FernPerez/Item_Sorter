@@ -216,7 +216,6 @@ class App {
     // Update sort states list
     this._updateStatesList();
 
-    // this._updateTieGroup(this.row, 'increase');
     // this._updateTieGroup(this.column, 'decrease');
 
     // If the selection is different than the previous selection, a divergence has occured.
@@ -228,9 +227,13 @@ class App {
 
     // The choice is equal to the row that is currently being traversed
     if (this.entries[this.row] === choice) {
+      // console.log('You selected row');
       this._fillWithOne(this.row, this.column);
       this._fillWithZero(this.column, this.row);
       this._inheritSuperiority(this.row, this.column);
+
+      this._updateTieGroup(this.row, this.column);
+
       [this.row, this.column] = this._findNextComparison(
         this.matrix,
         this.row,
@@ -247,9 +250,13 @@ class App {
     }
     // Choice is equal to the column, so switch to the row corresponding to that column.
     else {
+      // console.log('You selected column');
       this._fillWithOne(this.column, this.row);
       this._fillWithZero(this.row, this.column);
       this._inheritSuperiority(this.column, this.row);
+
+      this._updateTieGroup(this.column, this.row);
+
       [this.column, this.row] = this._findNextComparison(
         this.matrix,
         this.column,
@@ -267,12 +274,14 @@ class App {
   }
   _fillWithOne(x, y) {
     // Update progress bar and fill the given coords with 1
+    if (this.matrix[x][y] === 1) return;
     this._updateProgress();
     this.matrix[x][y] = 1;
   }
 
   _fillWithZero(x, y) {
     // Update progress bar and fill the given coords with 0
+    if (this.matrix[x][y] === 0) return;
     this._updateProgress();
     this.matrix[x][y] = 0;
   }
@@ -350,21 +359,43 @@ class App {
     this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
   }
 
-  _updateTieGroup(inheritor, inherited, operation) {
-    console.log(inheritor);
-    if (this.tieGroups.get(inheritor).length === 0) return;
+  _updateTieGroup(selected, nonselected, operation = 'non-tie') {
+    console.log(selected);
+    if (this.tieGroups.get(selected).length === 0) return;
 
-    console.log(`${inheritor} has ties!`);
+    console.log(`${selected} has ties!`);
 
     if (operation === 'tie') {
-      for (const tiedItem of this.tieGroups.get(inheritor)) {
+      for (const tiedItem of this.tieGroups.get(selected)) {
         if (
-          tiedItem === inherited ||
-          this.tieGroups.get(tiedItem).includes(inherited)
+          tiedItem === nonselected ||
+          this.tieGroups.get(tiedItem).includes(nonselected)
         )
           continue;
-        console.log(`${inherited} is not in ${tiedItem}'s list.`);
-        this._tie(tiedItem, inherited);
+        console.log(`${nonselected} is not in ${tiedItem}'s list.`);
+        this._tie(tiedItem, nonselected);
+      }
+      return;
+    }
+
+    // First, have the nonselected's tied entries inherit the inferiority
+    for (const tiedItem of this.tieGroups.get(nonselected)) {
+      this._fillWithZero(tiedItem, selected);
+      this._fillWithOne(selected, tiedItem);
+    }
+
+    // Second, have the selected's tied entries inherit the superiority
+    for (const tiedItem of this.tieGroups.get(selected)) {
+      this._fillWithOne(tiedItem, nonselected);
+      this._fillWithZero(nonselected, tiedItem);
+
+      // Ensure that the item inherits the superiority of the nonselected one
+      this._inheritSuperiority(tiedItem, nonselected);
+
+      // Third, have the nonselected's ties inherit inferiority to all of selected's ties
+      for (const nonselect_tie of this.tieGroups.get(nonselected)) {
+        this._fillWithZero(nonselect_tie, tiedItem);
+        this._fillWithOne(tiedItem, nonselect_tie);
       }
     }
   }
@@ -687,3 +718,12 @@ class State {
 }
 
 const app = new App();
+
+/* LOG
+
+05/31/2025
+ 1) Fix image desyncing
+ 2) Fix update progress bug, seems to be related to the tie feature
+ 3) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. 
+
+*/
