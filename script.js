@@ -330,10 +330,12 @@ class App {
     while (i < this.entries.length) {
       if (check1 === -1 && check2 !== -1 && check2 !== 'x') {
         this.matrix[choice1][i] = this.matrix[choice2][i];
+        this._updateProgress();
         this.matrix[i][choice1] = this.matrix[i][choice2];
         this._updateProgress();
       } else if (check2 === -1 && check1 !== -1 && check1 !== 'x') {
         this.matrix[choice2][i] = this.matrix[choice1][i];
+        this._updateProgress();
         this.matrix[i][choice2] = this.matrix[i][choice1];
         this._updateProgress();
       }
@@ -360,6 +362,8 @@ class App {
   }
 
   _updateTieGroup(selected, nonselected, operation = 'non-tie') {
+    // Propagates rankings by ties, checking if the selected option is tied to something and then
+    // making sure those ties inherit the same ranking updates as it
     console.log(selected);
     if (this.tieGroups.get(selected).length === 0) return;
 
