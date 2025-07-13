@@ -12,6 +12,14 @@ const title = document.querySelector('#title');
 const sorterContainer = document.querySelector('#sorter__container');
 const roundContainer = document.querySelector('#round__container');
 
+// Confirm if user wants to unload to prevent data loss.
+window.addEventListener('beforeunload', function (e) {
+  // Cancel event
+  e.preventDefault();
+
+  return '';
+});
+
 class App {
   defaultImg = `imgs/default.webp`;
   imageMap = new Map();
@@ -40,6 +48,7 @@ class App {
     reader.onload = e => {
       const text = e.target.result;
       this.entries = text.split(',').map(item => item.trim());
+      this._validateTextFile(event, this.entries);
     };
 
     reader.readAsText(listFile);
@@ -49,24 +58,28 @@ class App {
     const files = Array.from(event.target.files);
     // Filter image files only (jpg, jpeg, png, etc.)
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const imageNames = [];
 
     // Build a map of file names (without extensuon) to object URLs
     imageFiles.forEach(file => {
       const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '').toLowerCase();
       const objectURL = URL.createObjectURL(file);
+      imageNames.push(nameWithoutExt);
       this.imageMap[nameWithoutExt] = objectURL;
     });
+    console.log(this.imageMap);
+    this._validateImages(event, imageNames);
   }
 
   _validateForm(event) {
     event.preventDefault();
     const itemType = document.forms['indexForm']['itemType'].value.trim();
     if (itemType === '') {
-      alert('Item Type must be filled out.');
+      alert('ERROR: Item Type must be filled out.');
       event.preventDefault();
     }
     if (itemType.length < 3 || itemType.length > 20) {
-      alert('Item Type length must be between 3 and 20 characters.');
+      alert('ERROR: Item Type length must be between 3 and 20 characters.');
       event.preventDefault();
     }
 
@@ -75,6 +88,49 @@ class App {
 
     // Go to main app
     this._sort();
+  }
+
+  _validateTextFile(event, entries) {
+    if (entries.length < 3) {
+      alert('ERROR: There must be at least 3 items in the list to be ranked.');
+      listFileInput.value = '';
+      event.preventDefault();
+    } else if (entries.length > 100) {
+      alert('ERROR: There can only be up to 100 items to be ranked.');
+      listFileInput.value = '';
+      event.preventDefault();
+    }
+
+    const uniqueEntriesSet = new Set(entries);
+    const uniqueEntries = [...uniqueEntriesSet];
+
+    if (uniqueEntries.length < entries.length) {
+      uniqueEntries.forEach(entry => {
+        const occurrences = entries.filter(item => item === entry).length;
+        if (occurrences > 1) {
+          alert(
+            `ERROR: All items must be unique. ${entry} appears more than once.`
+          );
+        }
+      });
+
+      listFileInput.value = '';
+      event.preventDefault();
+    }
+
+    entries.forEach(entry => {
+      if (entry.length > 50) {
+        alert(
+          `ERROR: Items in the list can only be up to 50 characters long. Please shorten item "${entry}"`
+        );
+        listFileInput.value = '';
+        event.preventDefault();
+      }
+    });
+  }
+
+  _validateImages(event, images) {
+    console.log(images);
   }
 
   _displaySort(itemType) {
@@ -717,4 +773,12 @@ const app = new App();
   4) Image Validity Check
   5) Fix image desyncing
   6) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. 
+
+07/12/2025
+  1) Validate the text file's length and validity
+  2) Read through image names to tell the user what items don't have an image and ask if they wish to proceed anyway
+  3) Ask user to confirm before clicking back or refreshing sort page.
+  4) Fix image desyncing (haven't been able to replicate)
+  5) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
+  6) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
 */
