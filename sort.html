@@ -16,36 +16,41 @@
   </head>
   <body>
     <div class="main__container">
-      <h1 id="title"></h1>
+      <h1 id="title">Selection Sorter</h1>
       <div id="round__container">
-        <h1 id="round__label">Test</h1>
+        <h1 id="round__label">Start</h1>
       </div>
-      <div class="main__sub__container">
-        <div class="progress__container">
+      <div id="main__sub__container">
+        <!-- <div class="progress__container">
           <div class="progress__border">
             <h3 class="progress__counter">50%</h3>
             <div class="progress__bar w3-green"></div>
           </div>
+        </div> -->
+        <div id="formContainer">
+          <h2>Welcome to the Selection Sorter</h2>
+          <h3>Please select a text file and type of selection being done.</h3>
+          <form name="indexForm" id="indexForm">
+            <label for="listFile"
+              >Select text file containing items separated by commas.</label
+            ><br />
+            <input type="file" id="listFile" required /><br />
+            <label for="itemType">Type of Item:</label><br />
+            <input type="text" id="itemType" name="itemType" required /><br />
+            <label for="imageFolder">Select Image Folder (Optional)</label
+            ><br />
+            <input
+              type="file"
+              id="imageFolder"
+              webkitdirectory
+              directory
+              multiple
+            /><br />
+            <input type="submit" />
+            <!-- <button id="start">Start</button> -->
+          </form>
         </div>
-        <form name="indexForm" id="indexForm">
-          <label for="listFile"
-            >Select text file containing items separated by commas.</label
-          ><br />
-          <input type="file" id="listFile" required /><br />
-          <label for="itemType">Type of Item:</label><br />
-          <input type="text" id="itemType" name="itemType" required /><br />
-          <label for="imageFolder">Select Image Folder (Optional)</label><br />
-          <input
-            type="file"
-            id="imageFolder"
-            webkitdirectory
-            directory
-            multiple
-          /><br />
-          <input type="submit" />
-          <!-- <button id="start">Start</button> -->
-        </form>
-        <div class="sorter__container">
+        <!-- <div class="sorter__container">
           <div class="sorter__option__container">
             <div class="results__result__img__container--big">
               <img src="imgs/default.webp" class="sorter__img" id="img1" />
@@ -66,7 +71,7 @@
               Choice 2
             </button>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </body>

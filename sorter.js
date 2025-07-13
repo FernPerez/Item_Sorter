@@ -4,20 +4,13 @@ const listFileInput = document.querySelector('#listFile');
 const form = document.querySelector('#indexForm');
 const folderInput = document.querySelector('#imageFolder');
 
-const title = document.querySelector('#title');
-const btn1 = document.querySelector('#btn1');
-const btn2 = document.querySelector('#btn2');
-const undo = document.querySelector('#undo');
-const tiebtn = document.querySelector('#tie');
-const img1 = document.querySelector('#img1');
-const img2 = document.querySelector('#img2');
-const rounds = document.querySelector('#round__container');
-const roundLbl = document.querySelector('#round__label');
-const progressBar = document.querySelector('.progress__bar');
-const progressCounter = document.querySelector('.progress__counter');
-const btns = document.querySelectorAll('.sorter__selection__button');
+const formContainer = document.querySelector('#formContainer');
+const mainSubContainer = document.querySelector('#main__sub__container');
 
-const sorterContainer = document.querySelector('.sorter__container');
+const title = document.querySelector('#title');
+
+const sorterContainer = document.querySelector('#sorter__container');
+const roundContainer = document.querySelector('#round__container');
 
 class App {
   defaultImg = `imgs/default.webp`;
@@ -77,34 +70,85 @@ class App {
       event.preventDefault();
     }
 
-    // Set title
-    title.textContent = this.itemType;
+    // Change HTML to display the sort
+    this._displaySort(itemType);
 
     // Go to main app
-    this._loadAll();
+    this._sort();
   }
 
-  _loadAll() {
+  _displaySort(itemType) {
+    formContainer.remove();
+    title.textContent = `${itemType} Sorter`;
+    mainSubContainer.insertAdjacentHTML(
+      'afterbegin',
+      `<div class="progress__container">
+          <div class="progress__border">
+            <h3 class="progress__counter">50%</h3>
+            <div class="progress__bar w3-green"></div>
+          </div>
+        </div> <div class="sorter__container">
+          <div class="sorter__option__container">
+            <div class="results__result__img__container--big">
+              <img src="imgs/default.webp" class="sorter__img" id="img1" />
+            </div>
+            <button class="sorter__selection__button" id="btn1">
+              Choice 1
+            </button>
+          </div>
+          <div class="sorter__middle__container">
+            <button class="sorter__selection__button" id="tie">Tie</button>
+            <button class="sorter__selection__button" id="undo">Undo</button>
+          </div>
+          <div class="sorter__option__container">
+            <div class="results__result__img__container--big">
+              <img src="imgs/default.webp" class="sorter__img" id="img2" />
+            </div>
+            <button class="sorter__selection__button" id="btn2">
+              Choice 2
+            </button>
+          </div>
+        </div>`
+    );
+
+    this.btn1 = document.querySelector('#btn1');
+    this.btn2 = document.querySelector('#btn2');
+    this.undobtn = document.querySelector('#undo');
+    this.tiebtn = document.querySelector('#tie');
+    this.img1 = document.querySelector('#img1');
+    this.img2 = document.querySelector('#img2');
+    this.rounds = document.querySelector('#round__container');
+    this.roundLbl = document.querySelector('#round__label');
+    this.progressBar = document.querySelector('.progress__bar');
+    this.progressCounter = document.querySelector('.progress__counter');
+    this.sorterContainer = document.querySelector('.sorter__container');
+  }
+
+  _sort() {
     // Load Image URLs
-    console.log(this.entries);
     this.entries.forEach(name => {
       const trimmed = name.trim().replaceAll(' ', '_').toLowerCase();
       const imgSrc = this.imageMap[trimmed];
 
       this.imgs.set(name, imgSrc);
     });
-    console.log(this.imgs);
 
     // Initial setup and display
     // Add select calls to both buttons
-    btn1.addEventListener('click', e => this._select(e.target.textContent));
-    btn2.addEventListener('click', e => this._select(e.target.textContent));
+    this.btn1.addEventListener('click', e =>
+      this._select(e.target.textContent)
+    );
+    this.btn2.addEventListener('click', e =>
+      this._select(e.target.textContent)
+    );
 
     // Add undo call to undo button
-    undo.addEventListener('click', e => this._undo());
+    this.undobtn.addEventListener('click', e => this._undo());
 
     // Add tie call to tie button
-    tiebtn.addEventListener('click', e => this._tie(this.row, this.column));
+    this.tiebtn.addEventListener('click', e =>
+      this._tie(this.row, this.column)
+    );
 
     // Randomize the entries
     this._shuffleArray(this.entries);
@@ -129,21 +173,21 @@ class App {
     this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
 
     // Update rounds display
-    rounds.style.display = 'flex';
-    roundLbl.textContent = `Round ${this.roundNum}`;
+    this.rounds.style.display = 'flex';
+    this.roundLbl.textContent = `Round ${this.roundNum}`;
     this._updateProgress();
   }
   _loadBothChoices(choice1, choice2, change = 'up') {
     // Updates the contents of both buttons, images
-    btn1.textContent = choice1;
-    btn2.textContent = choice2;
+    this.btn1.textContent = choice1;
+    this.btn2.textContent = choice2;
     this._updateRounds(change);
     this._displayImgs(choice1, choice2);
     console.log(`${choice1} vs ${choice2}`);
   }
   _displayImgs(choice1, choice2) {
-    img1.src = this.imgs.get(choice1);
-    img2.src = this.imgs.get(choice2);
+    this.img1.src = this.imgs.get(choice1) || this.defaultImg;
+    this.img2.src = this.imgs.get(choice2) || this.defaultImg;
   }
 
   _select(choice) {
@@ -448,14 +492,15 @@ class App {
 
   _renderResults(results) {
     // Renders the HTML to display the results when the sort is over.
-    console.log(results[0]);
+    console.log(this.imgs);
+    console.log(results[0][0]);
     // Display Top 3 Results
-    sorterContainer.insertAdjacentHTML(
+    this.sorterContainer.insertAdjacentHTML(
       'afterend',
       `<div class="results__container">
         <div class="results__result__container--big results__result__container--first">
           <div class="results__result__img__container--big">
-            <img src="./imgs/${this.imgs.get(
+            <img src="${this.imgs.get(
               results[0][0]
             )}" class="results__result__img" />
           </div>
@@ -463,7 +508,7 @@ class App {
         </div>
         <div class="results__result__container--big results__result__container--second">
           <div class="results__result__img__container--big">
-            <img src="./imgs/${this.imgs.get(
+            <img src="${this.imgs.get(
               results[1][0]
             )}" class="results__result__img" />
           </div>
@@ -471,7 +516,7 @@ class App {
         </div>
         <div class="results__result__container--big results__result__container--third">
           <div class="results__result__img__container--big">
-            <img src="./imgs/${this.imgs.get(
+            <img src="${this.imgs.get(
               results[2][0]
             )}" class="results__result__img">
           </div>
@@ -491,7 +536,7 @@ class App {
     while (i < results.length && i <= 17) {
       html += `<div class="results__result__container--med">
             <div class="results__result__img__container--med">
-              <img src="./imgs/${this.imgs.get(
+              <img src="${this.imgs.get(
                 results[i][0]
               )}" class="results__result__img">
             </div>
@@ -538,7 +583,7 @@ class App {
     if (change === 'up') this.roundNum++;
     else this.roundNum--;
 
-    roundLbl.textContent = `Round ${this.roundNum}`;
+    this.roundLbl.textContent = `Round ${this.roundNum}`;
   }
 
   _updateProgress(change = 'up') {
@@ -552,12 +597,12 @@ class App {
     // console.log(
     //   `Progress is ${this.progress}/${this.maxProgress}: ${percentage}%`
     // );
-    progressBar.style.width = `${percentage}%`;
-    progressCounter.textContent = `${Number(percentage).toFixed(0)}%`;
+    this.progressBar.style.width = `${percentage}%`;
+    this.progressCounter.textContent = `${Number(percentage).toFixed(0)}%`;
     if (percentage >= 12) {
-      progressCounter.style.left = `${(percentage / 2).toFixed(2)}%`;
+      this.progressCounter.style.left = `${(percentage / 2).toFixed(2)}%`;
     } else {
-      progressCounter.style.left = '40px';
+      this.progressCounter.style.left = '40px';
     }
   }
   _updateStatesList() {
