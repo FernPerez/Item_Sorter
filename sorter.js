@@ -1,6 +1,10 @@
 'use strict';
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+const listFileInput = document.querySelector('#listFile');
+const form = document.querySelector('#indexForm');
+const folderInput = document.querySelector('#imageFolder');
 
+const title = document.querySelector('#title');
 const btn1 = document.querySelector('#btn1');
 const btn2 = document.querySelector('#btn2');
 const undo = document.querySelector('#undo');
@@ -17,7 +21,8 @@ const sorterContainer = document.querySelector('.sorter__container');
 
 class App {
   defaultImg = `imgs/default.webp`;
-  imgNames = new Map();
+  imageMap = new Map();
+  imgs = new Map();
   finishedRows = new Map();
   roundNum = 0;
   progress = -1;
@@ -28,14 +33,67 @@ class App {
   entries = [];
 
   constructor() {
-    // Load item names
-    const data = sessionStorage.getItem('textFileData');
-    if (!data) {
-      alert('No file data found!');
-      return;
+    listFileInput.addEventListener('change', e => this._loadItemNames(e));
+    form.addEventListener('submit', e => this._validateForm(e));
+    folderInput.addEventListener('change', e => this._loadImagePaths(e));
+  }
+
+  _loadItemNames(event) {
+    const listFile = event.target.files[0];
+    if (!listFile) return;
+
+    const reader = new FileReader();
+
+    reader.onload = e => {
+      const text = e.target.result;
+      this.entries = text.split(',').map(item => item.trim());
+    };
+
+    reader.readAsText(listFile);
+  }
+
+  _loadImagePaths(event) {
+    const files = Array.from(event.target.files);
+    // Filter image files only (jpg, jpeg, png, etc.)
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+
+    // Build a map of file names (without extensuon) to object URLs
+    imageFiles.forEach(file => {
+      const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '').toLowerCase();
+      const objectURL = URL.createObjectURL(file);
+      this.imageMap[nameWithoutExt] = objectURL;
+    });
+  }
+
+  _validateForm(event) {
+    event.preventDefault();
+    const itemType = document.forms['indexForm']['itemType'].value.trim();
+    if (itemType === '') {
+      alert('Item Type must be filled out.');
+      event.preventDefault();
+    }
+    if (itemType.length < 3 || itemType.length > 20) {
+      alert('Item Type length must be between 3 and 20 characters.');
+      event.preventDefault();
     }
 
-    this.entries = data.split(',').map(item => item.trim());
+    // Set title
+    title.textContent = this.itemType;
+
+    // Go to main app
+    this._loadAll();
+  }
+
+  _loadAll() {
+    // Load Image URLs
+    console.log(this.entries);
+    this.entries.forEach(name => {
+      const trimmed = name.trim().replaceAll(' ', '_').toLowerCase();
+      const imgSrc = this.imageMap[trimmed];
+
+      this.imgs.set(name, imgSrc);
+    });
+    console.log(this.imgs);
 
     // Initial setup and display
     // Add select calls to both buttons
@@ -51,13 +109,9 @@ class App {
     // Randomize the entries
     this._shuffleArray(this.entries);
 
-    // // Populate Tie List with initial empty values.
-    // this.entries.map(entry => this.tieMap.set(entry, []));
-
     // Initialize finished rows map and generate img names
     for (let i = 0; i < this.entries.length; i++) {
       this.finishedRows.set(i, false);
-      this.imgNames.set(this.entries[i], this._genImgName(this.entries[i]));
     }
 
     // Generate the matrix for this sort
@@ -88,22 +142,10 @@ class App {
     console.log(`${choice1} vs ${choice2}`);
   }
   _displayImgs(choice1, choice2) {
-    // Updates both images.
-    this._validateImgName(img1, `imgs/${this.imgNames.get(choice1)}`);
-    this._validateImgName(img2, `imgs/${this.imgNames.get(choice2)}`);
+    img1.src = this.imgs.get(choice1);
+    img2.src = this.imgs.get(choice2);
   }
-  _validateImgName(img, path) {
-    // Checks if given path leads to an existing image file. Uses default img path if not.
-    const tempImg = new Image();
 
-    tempImg.onload = () => {
-      img.src = path;
-    };
-    tempImg.onerror = () => {
-      img.src = this.defaultImg;
-    };
-    tempImg.src = path;
-  }
   _select(choice) {
     // Primary method called when button is pressed. Updates matrix with choices, calls to find next comparisons and moves on to next choice.
     console.log(
@@ -356,17 +398,13 @@ class App {
   _findCompForChoice(entryMatrix, row, col) {
     // Checks the given row, and searches for a new comparison column starting at the given column
     const nextComparison = entryMatrix[row].indexOf(-1, col + 1);
-    if (nextComparison !== -1) return nextComparison;
+    if (nextComparison !== -1)
+      return nextComparison; // potential BUG here when tying (gave indexOf error)
     else {
       // No more comparisons left in the row. Indicate that the row is finished and return null.
       this.finishedRows.set(row, true);
       return null;
     }
-  }
-
-  _genImgName(entryName) {
-    // Returns the name of the corresponding image
-    return `${entryName.toLowerCase().replaceAll(' ', '_')}.webp`;
   }
 
   _shuffleArray(array) {
@@ -378,11 +416,6 @@ class App {
       array[j] = temp;
     }
   }
-
-  // _populateTieList() {
-
-  //   console.log(this.tieMap);
-  // }
 
   _generateMatrix(entries) {
     // Generates a square matrix of the same size as the entries array
@@ -422,7 +455,7 @@ class App {
       `<div class="results__container">
         <div class="results__result__container--big results__result__container--first">
           <div class="results__result__img__container--big">
-            <img src="./imgs/${this.imgNames.get(
+            <img src="./imgs/${this.imgs.get(
               results[0][0]
             )}" class="results__result__img" />
           </div>
@@ -430,7 +463,7 @@ class App {
         </div>
         <div class="results__result__container--big results__result__container--second">
           <div class="results__result__img__container--big">
-            <img src="./imgs/${this.imgNames.get(
+            <img src="./imgs/${this.imgs.get(
               results[1][0]
             )}" class="results__result__img" />
           </div>
@@ -438,7 +471,7 @@ class App {
         </div>
         <div class="results__result__container--big results__result__container--third">
           <div class="results__result__img__container--big">
-            <img src="./imgs/${this.imgNames.get(
+            <img src="./imgs/${this.imgs.get(
               results[2][0]
             )}" class="results__result__img">
           </div>
@@ -458,7 +491,7 @@ class App {
     while (i < results.length && i <= 17) {
       html += `<div class="results__result__container--med">
             <div class="results__result__img__container--med">
-              <img src="./imgs/${this.imgNames.get(
+              <img src="./imgs/${this.imgs.get(
                 results[i][0]
               )}" class="results__result__img">
             </div>

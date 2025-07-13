@@ -16,7 +16,7 @@
   </head>
   <body>
     <div class="main__container">
-      <h1>Character Sorter</h1>
+      <h1 id="title"></h1>
       <div id="round__container">
         <h1 id="round__label">Test</h1>
       </div>
@@ -27,6 +27,24 @@
             <div class="progress__bar w3-green"></div>
           </div>
         </div>
+        <form name="indexForm" id="indexForm">
+          <label for="listFile"
+            >Select text file containing items separated by commas.</label
+          ><br />
+          <input type="file" id="listFile" required /><br />
+          <label for="itemType">Type of Item:</label><br />
+          <input type="text" id="itemType" name="itemType" required /><br />
+          <label for="imageFolder">Select Image Folder (Optional)</label><br />
+          <input
+            type="file"
+            id="imageFolder"
+            webkitdirectory
+            directory
+            multiple
+          /><br />
+          <input type="submit" />
+          <!-- <button id="start">Start</button> -->
+        </form>
         <div class="sorter__container">
           <div class="sorter__option__container">
             <div class="results__result__img__container--big">

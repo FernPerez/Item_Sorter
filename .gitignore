@@ -2,4 +2,4 @@
 imgs/
 
 .prettierrc
-.txt
+*.txt

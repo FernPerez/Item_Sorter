@@ -94,10 +94,9 @@ h1 {
 
 .main__sub__sub__container-index {
   background-color: rgb(212, 212, 212);
-  max-width: 200px;
+  max-width: 500px;
   display: block;
-  align-items: center;
-  justify-content: center;
+
   padding-top: 25px;
   padding-left: 50px;
   padding-right: 50px;

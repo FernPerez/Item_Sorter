@@ -19,11 +19,28 @@
       <h1>Selection Sorter</h1>
       <div class="main__sub__container-index">
         <h2>Welcome to the Selection Sorter</h2>
-        <h3>Please select a text file and type of selectiob being done.</h3>
+        <h3>Please select a text file and type of selection being done.</h3>
 
         <div class="main__sub__sub__container-index">
-          <input type="file" id="listFile" />
-          <button id="start">Start</button>
+          <form name="indexForm" action="/sort.html" id="indexForm">
+            <label for="listFile"
+              >Select text file containing items separated by commas.</label
+            ><br />
+            <input type="file" id="listFile" required /><br />
+            <label for="itemType">Type of Item:</label><br />
+            <input type="text" id="itemType" name="itemType" required /><br />
+            <label for="imageFolder">Select Image Folder (Optional)</label
+            ><br />
+            <input
+              type="file"
+              id="imageFolder"
+              webkitdirectory
+              directory
+              multiple
+            /><br />
+            <input type="submit" />
+            <!-- <button id="start">Start</button> -->
+          </form>
         </div>
       </div>
     </div>
