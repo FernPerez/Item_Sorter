@@ -32,6 +32,7 @@ class App {
   states = [];
   tieGroups = new Map();
   entries = [];
+  imgsValidated = false;
 
   constructor() {
     listFileInput.addEventListener('change', e => this._loadItemNames(e));
@@ -65,7 +66,7 @@ class App {
       const nameWithoutExt = file.name.replace(/\.[^/.]+$/, '').toLowerCase();
       const objectURL = URL.createObjectURL(file);
       imageNames.push(nameWithoutExt);
-      this.imageMap[nameWithoutExt] = objectURL;
+      this.imageMap.set(nameWithoutExt, objectURL);
     });
     console.log(this.imageMap);
     this._validateImages(event, imageNames);
@@ -117,7 +118,6 @@ class App {
       listFileInput.value = '';
       event.preventDefault();
     }
-
     entries.forEach(entry => {
       if (entry.length > 50) {
         alert(
@@ -127,10 +127,36 @@ class App {
         event.preventDefault();
       }
     });
+    // In the event that the user uploads the images first, we must check again to validate after the text file is uploaded.
+    if (this.imgsValidated) {
+      // alert(`Image folder input cleared due to new text file being selected.`);
+      // this.imgsValidated = false;
+      // folderInput.value = '';
+      this.imgsValidated = false;
+      this._validateImages(event, [...this.imageMap.keys()]);
+    }
   }
 
   _validateImages(event, images) {
+    // console.log(this.entries);
+    // console.log(images);
     console.log(images);
+    const noMatches = [];
+    this.entries.forEach(name => {
+      const trimmed = name.trim().replaceAll(' ', '_').toLowerCase();
+      if (!images.includes(trimmed)) {
+        noMatches.push(name);
+      }
+    });
+    if (noMatches.length > 0) {
+      alert(`WARNING: Could not find image for the following item(s):
+        ${noMatches
+          .map(noMatch => `* ${noMatch}`)
+          .join(
+            '`n'
+          )}\nPlease correct the folder or hit submit if you wish to proceed anyway.`);
+    }
+    this.imgsValidated = true;
   }
 
   _displaySort(itemType) {
@@ -184,7 +210,7 @@ class App {
     // Load Image URLs
     this.entries.forEach(name => {
       const trimmed = name.trim().replaceAll(' ', '_').toLowerCase();
-      const imgSrc = this.imageMap[trimmed];
+      const imgSrc = this.imageMap.get(trimmed);
 
       this.imgs.set(name, imgSrc);
     });
@@ -403,7 +429,7 @@ class App {
   _updateTieGroup(selected, nonselected, operation = 'non-tie') {
     // Propagates rankings by ties, checking if the selected option is tied to something and then
     // making sure those ties inherit the same ranking updates as it
-    console.log(selected);
+    // console.log(selected);
     if (this.tieGroups.get(selected).length === 0) return;
 
     console.log(`${selected} has ties!`);
