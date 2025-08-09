@@ -6,9 +6,7 @@ const folderInput = document.querySelector('#imageFolder');
 
 const formContainer = document.querySelector('#formContainer');
 const mainSubContainer = document.querySelector('#main__sub__container');
-
 const title = document.querySelector('#title');
-
 const sorterContainer = document.querySelector('#sorter__container');
 const roundContainer = document.querySelector('#round__container');
 
@@ -21,18 +19,32 @@ window.addEventListener('beforeunload', function (e) {
 });
 
 class App {
-  defaultImg = `imgs/default.webp`;
+  // Main Application
+  defaultImg = `imgs/default.webp`; // Path to default image (used when no image is found for an item)
+
+  // imageMap stores image file names and their paths
   imageMap = new Map();
+
+  // imgs is then used to link the proper named items with the corresponding paths from imageMap
   imgs = new Map();
+
+  // Stores rows in the matrix alongside a bool representing if they have no comparisons left (true) or if they do (false)
   finishedRows = new Map();
+
   roundNum = 0;
-  progress = -1;
+  progress = -1; // Starts at -1 to account for inclusive range
+
+  // Last pick is used for the purpose of diverting off the previous selection. Basically, if the current pick by the user
+  // is different than the last, store that as a divergence and then move on to comparing items against the choice made
   lastPick = undefined;
+  // Divergences stores a list of every time the user makes a choice that is different from lastPick, this allows us to go
+  // back when comparisons with the new choice end.
   divergences = [];
-  states = [];
-  tieGroups = new Map();
-  entries = [];
-  imgsValidated = false;
+
+  states = []; // Used to store up to 10 previous states of the sort for the purpose of undo feature
+  tieGroups = new Map(); // Stores items as keys and values as arrays of each item the key item is tied to in rank.
+  entries = []; // Stores items to be compared
+  imgsValidated = false; // Determines if the images loaded have been validated against the text file.
 
   constructor() {
     listFileInput.addEventListener('change', e => this._loadItemNames(e));
@@ -41,6 +53,7 @@ class App {
   }
 
   _loadItemNames(event) {
+    // Reads through text file to split each item by commas and store them in entries
     const listFile = event.target.files[0];
     if (!listFile) return;
 
@@ -56,7 +69,9 @@ class App {
   }
 
   _loadImagePaths(event) {
+    // Reads through files in the selected folder and loads the images into imageMap
     const files = Array.from(event.target.files);
+
     // Filter image files only (jpg, jpeg, png, etc.)
     const imageFiles = files.filter(file => file.type.startsWith('image/'));
     const imageNames = [];
@@ -68,11 +83,11 @@ class App {
       imageNames.push(nameWithoutExt);
       this.imageMap.set(nameWithoutExt, objectURL);
     });
-    console.log(this.imageMap);
     this._validateImages(event, imageNames);
   }
 
   _validateForm(event) {
+    // Ensures the initial form is valid before moving on to the sort.
     event.preventDefault();
     const itemType = document.forms['indexForm']['itemType'].value.trim();
     if (itemType === '') {
@@ -92,16 +107,21 @@ class App {
   }
 
   _validateTextFile(event, entries) {
+    // Ensure items in the file are valid for sorting
+
+    // Too little
     if (entries.length < 3) {
       alert('ERROR: There must be at least 3 items in the list to be ranked.');
       listFileInput.value = '';
       event.preventDefault();
+      // Too many
     } else if (entries.length > 100) {
       alert('ERROR: There can only be up to 100 items to be ranked.');
       listFileInput.value = '';
       event.preventDefault();
     }
 
+    // Ensure each item in the list is unique
     const uniqueEntriesSet = new Set(entries);
     const uniqueEntries = [...uniqueEntriesSet];
 
@@ -118,6 +138,7 @@ class App {
       listFileInput.value = '';
       event.preventDefault();
     }
+    // Item too long
     entries.forEach(entry => {
       if (entry.length > 50) {
         alert(
@@ -129,18 +150,15 @@ class App {
     });
     // In the event that the user uploads the images first, we must check again to validate after the text file is uploaded.
     if (this.imgsValidated) {
-      // alert(`Image folder input cleared due to new text file being selected.`);
-      // this.imgsValidated = false;
-      // folderInput.value = '';
       this.imgsValidated = false;
       this._validateImages(event, [...this.imageMap.keys()]);
     }
   }
 
   _validateImages(event, images) {
-    // console.log(this.entries);
-    // console.log(images);
-    console.log(images);
+    // This method checls to see if any items did not have a corresponding approrpiately named image and informs the user.
+    event.preventDefault();
+
     const noMatches = [];
     this.entries.forEach(name => {
       const trimmed = name.trim().replaceAll(' ', '_').toLowerCase();
@@ -160,6 +178,7 @@ class App {
   }
 
   _displaySort(itemType) {
+    // Removes the form display to reveal the complete sort menu display and assign variables to corresponding elements
     formContainer.remove();
     title.textContent = `${itemType} Sorter`;
     mainSubContainer.insertAdjacentHTML(
@@ -207,7 +226,9 @@ class App {
   }
 
   _sort() {
-    // Load Image URLs
+    // Initiates the main sorting program and sets everything up for the first comparison
+
+    // Load Image URLs and assign them to items in imgs.
     this.entries.forEach(name => {
       const trimmed = name.trim().replaceAll(' ', '_').toLowerCase();
       const imgSrc = this.imageMap.get(trimmed);
@@ -215,7 +236,6 @@ class App {
       this.imgs.set(name, imgSrc);
     });
 
-    // Initial setup and display
     // Add select calls to both buttons
     this.btn1.addEventListener('click', e =>
       this._select(e.target.textContent)
@@ -265,23 +285,19 @@ class App {
     this.btn2.textContent = choice2;
     this._updateRounds(change);
     this._displayImgs(choice1, choice2);
-    console.log(`${choice1} vs ${choice2}`);
+    // console.log(`${choice1} vs ${choice2}`);
   }
   _displayImgs(choice1, choice2) {
+    // Retrieves the corresponding image for the items being compared if they exist
     this.img1.src = this.imgs.get(choice1) || this.defaultImg;
     this.img2.src = this.imgs.get(choice2) || this.defaultImg;
   }
 
   _select(choice) {
     // Primary method called when button is pressed. Updates matrix with choices, calls to find next comparisons and moves on to next choice.
-    console.log(
-      `You selected ${choice}!` // Current row and column are ${row}x${column}`
-    );
 
     // Update sort states list
     this._updateStatesList();
-
-    // this._updateTieGroup(this.column, 'decrease');
 
     // If the selection is different than the previous selection, a divergence has occured.
     if (choice !== this.lastPick && this.lastPick !== undefined) {
@@ -290,15 +306,15 @@ class App {
     // Update last pick to current choice.
     this.lastPick = choice;
 
-    // The choice is equal to the row that is currently being traversed
+    // The choice is equal to the entry's row that is currently being traversed
     if (this.entries[this.row] === choice) {
-      // console.log('You selected row');
       this._fillWithOne(this.row, this.column);
       this._fillWithZero(this.column, this.row);
       this._inheritSuperiority(this.row, this.column);
 
       this._updateTieGroup(this.row, this.column);
 
+      // Retrieve the next comparison if there are any
       [this.row, this.column] = this._findNextComparison(
         this.matrix,
         this.row,
@@ -313,10 +329,9 @@ class App {
       // Load next comparison into display
       this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
     }
-    // Choice is equal to the column, so switch to the row corresponding to that column.
+    // Choice is equal to the other entry's column, so switch to the row corresponding to that column.
     else {
-      // console.log('You selected column');
-      this._fillWithOne(this.column, this.row);
+      this._fillWithOne(this.column, this.row); // TODO Can be refactored as a method to avoid repeating code
       this._fillWithZero(this.row, this.column);
       this._inheritSuperiority(this.column, this.row);
 
@@ -370,7 +385,7 @@ class App {
 
   _tie(choice1, choice2) {
     // Called to tie the current two choices, making them copy each other's rows and columns in the matrix &
-    // adding them to each other's tie lists
+    // adding them to each other's tie lists in tieGroups
 
     // Update sort states list
     this._updateStatesList();
@@ -393,6 +408,7 @@ class App {
     let i = 0;
 
     while (i < this.entries.length) {
+      // TODO Maybe can be refactored
       if (check1 === -1 && check2 !== -1 && check2 !== 'x') {
         this.matrix[choice1][i] = this.matrix[choice2][i];
         this._updateProgress();
@@ -410,7 +426,7 @@ class App {
       check2 = this.matrix[choice2][i];
     }
 
-    // Load next comparison
+    // Load next comparison       // TODO Can be refactored
     [this.row, this.column] = this._findNextComparison(
       this.matrix,
       this.row + 2,
@@ -429,11 +445,12 @@ class App {
   _updateTieGroup(selected, nonselected, operation = 'non-tie') {
     // Propagates rankings by ties, checking if the selected option is tied to something and then
     // making sure those ties inherit the same ranking updates as it
-    // console.log(selected);
+
     if (this.tieGroups.get(selected).length === 0) return;
 
-    console.log(`${selected} has ties!`);
+    // console.log(`${selected} has ties!`);
 
+    // If the ranking update being inherited is a tie, propagate that tie
     if (operation === 'tie') {
       for (const tiedItem of this.tieGroups.get(selected)) {
         if (
@@ -441,11 +458,17 @@ class App {
           this.tieGroups.get(tiedItem).includes(nonselected)
         )
           continue;
-        console.log(`${nonselected} is not in ${tiedItem}'s list.`);
+        // console.log(`${nonselected} is not in ${tiedItem}'s list.`);
         this._tie(tiedItem, nonselected);
       }
       return;
     }
+
+    // If the ranking update was not a tie, then the nonselected item's tied items must also be inferior to the
+    // selected item. i.e. If A = B and C > B, then also C > A. The selected option's tied items must also be superior to
+    // whatever the nonseleceted item is tied to. i.e. If A = B and B > C, then also A > C. Lastly, we must ensure that
+    // items tied to the nonselected item must be inferior to the selected item's ties. i.e. If A = B, C = D, and C > B,
+    // then also A < D.
 
     // First, have the nonselected's tied entries inherit the inferiority
     for (const tiedItem of this.tieGroups.get(nonselected)) {
@@ -475,7 +498,6 @@ class App {
     let row, col;
     col = this._findCompForChoice(entryMatrix, rowInp, colInp);
     if (col) {
-      // console.log(`col is ${col}`);
       row = rowInp;
     } else {
       // If other option has no comparisons left to be made, set it to finished.
@@ -553,10 +575,10 @@ class App {
       matrix[i] = new Array(entries.length).fill(-1);
       matrix[i][i] = 'x';
     }
-    // console.log(matrix);
     return matrix;
   }
   _generateTieGroups() {
+    // Every item is placed in tieGroups by default with an empty list of tied items.
     for (let i = 0; i <= this.entries.length; i++) {
       this.tieGroups.set(i, []);
     }
@@ -568,7 +590,7 @@ class App {
       results.push([this.entries[i], this._getScore(this.matrix[i])]);
     }
     results.sort((a, b) => a[1] - b[1]);
-    console.log(results);
+    // console.log(results);
     this._renderResults(results);
   }
 
@@ -676,9 +698,7 @@ class App {
     console.log(`Progress: ${this.progress}`);
 
     const percentage = ((this.progress / this.maxProgress) * 100).toFixed(2);
-    // console.log(
-    //   `Progress is ${this.progress}/${this.maxProgress}: ${percentage}%`
-    // );
+
     this.progressBar.style.width = `${percentage}%`;
     this.progressCounter.textContent = `${Number(percentage).toFixed(0)}%`;
     if (percentage >= 12) {
@@ -688,6 +708,9 @@ class App {
     }
   }
   _updateStatesList() {
+    // Called every time a choice or tie is made to save up to the last 10 states of the sort. That way, when the user
+    // hits 'undo', it will revert everything to how it was in the very last state.
+
     // Create a deep copy of the matrix
     const matrixCopy = this.matrix.map(row => [...row]);
 
@@ -740,9 +763,7 @@ class App {
     this.row = lastState.row;
     this.column = lastState.column;
 
-    console.log(this.row);
-    console.log(this.column);
-
+    // Discard state
     this.states.pop();
   }
 }
@@ -807,4 +828,16 @@ const app = new App();
   4) Fix image desyncing (haven't been able to replicate)
   5) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
   6) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
+
+07/27/2025
+  1) Clean up code and add more comments/documentation
+  2) Fix image desyncing (haven't been able to replicate)
+  3) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
+  4) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
+
+08/09/2025
+  1) Refactor redundant or repeating parts of code. Maybe rename certain variables like row and col.
+  2) Fix image desyncing (haven't been able to replicate)
+  3) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
+  4) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
 */
