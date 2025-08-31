@@ -308,50 +308,46 @@ class App {
 
     // The choice is equal to the entry's row that is currently being traversed
     if (this.entries[this.row] === choice) {
-      this._fillWithOne(this.row, this.column);
-      this._fillWithZero(this.column, this.row);
-      this._inheritSuperiority(this.row, this.column);
+      this._updateRankings(this.row, this.column);
+    } else {
+      this._updateRankings(this.column, this.row);
+    }
+  }
 
-      this._updateTieGroup(this.row, this.column);
+  _updateRankings(selected, nonselected) {
+    // Called by _select to make the necessary updates to the matrix and proceed with the next comparison
+    this._fillWithOne(selected, nonselected);
+    this._fillWithZero(nonselected, selected);
+    this._inheritSuperiority(selected, nonselected);
 
-      // Retrieve the next comparison if there are any
+    this._updateTieGroup(selected, nonselected);
+
+    // Retrieve the next comparison if there are any
+
+    if (this.row === selected) {
       [this.row, this.column] = this._findNextComparison(
         this.matrix,
         this.row,
         this.column
       );
-      // No comparisons left, load results and end sort.
-      if (this.row === null) {
-        console.log(`FINISHED`);
-        this._loadResults();
-        return;
-      }
-      // Load next comparison into display
-      this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
-    }
-    // Choice is equal to the other entry's column, so switch to the row corresponding to that column.
-    else {
-      this._fillWithOne(this.column, this.row); // TODO Can be refactored as a method to avoid repeating code
-      this._fillWithZero(this.row, this.column);
-      this._inheritSuperiority(this.column, this.row);
-
-      this._updateTieGroup(this.column, this.row);
-
+    } else if (this.column === selected) {
       [this.column, this.row] = this._findNextComparison(
         this.matrix,
         this.column,
         this.row
       );
-      // No comparisons left, load results and end sort.
-      if (this.row === null) {
-        console.log(`FINISHED`);
-        this._loadResults();
-        return;
-      }
-      // Load next comparison into display
-      this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
     }
+
+    // No comparisons left, load results and end sort.
+    if (this.row === null) {
+      console.log(`FINISHED`);
+      this._loadResults();
+      return;
+    }
+    // Load next comparison into display
+    this._loadBothChoices(this.entries[this.row], this.entries[this.column]);
   }
+
   _fillWithOne(x, y) {
     // Update progress bar and fill the given coords with 1
     if (this.matrix[x][y] === 1) return;
@@ -591,7 +587,17 @@ class App {
     }
     results.sort((a, b) => a[1] - b[1]);
     // console.log(results);
+
+    this._disableButtons();
+
     this._renderResults(results);
+  }
+
+  _disableButtons() {
+    this.undobtn.disabled = true;
+    this.tiebtn.disabled = true;
+    this.btn1.disabled = true;
+    this.btn2.disabled = true;
   }
 
   _renderResults(results) {
@@ -836,6 +842,12 @@ const app = new App();
   4) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
 
 08/09/2025
+  1) Refactor redundant or repeating parts of code. Maybe rename certain variables like row and col.
+  2) Fix image desyncing (haven't been able to replicate)
+  3) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
+  4) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
+
+08/31/2025
   1) Refactor redundant or repeating parts of code. Maybe rename certain variables like row and col.
   2) Fix image desyncing (haven't been able to replicate)
   3) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
