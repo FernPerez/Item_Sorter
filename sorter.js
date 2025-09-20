@@ -607,7 +607,9 @@ class App {
     // Display Top 3 Results
     this.sorterContainer.insertAdjacentHTML(
       'afterend',
-      `<div class="results__container">
+      `
+      <div class="results__container">
+        <button class="results__save__btn">Save Results</button>
         <div class="results__result__container--big results__result__container--first">
           <div class="results__result__img__container--big">
             <img src="${this.imgs.get(
@@ -634,8 +636,22 @@ class App {
         </div>
         ${this._renderSecondResults(results) || ''}
         ${this._renderRemainingResults(results) || ''}    
-      </div>`
+        <button class="results__save__btn">Save Results</button>
+      </div>
+      `
     );
+    // Add save functionality to buttons
+    const saveBtns = document.querySelectorAll('.results__save__btn');
+    saveBtns.forEach(btn =>
+      btn.addEventListener('click', e => this._saveResults())
+    );
+  }
+
+  _saveResults() {
+    console.log('test');
+    html2pdf()
+      .from(document.querySelector('.results__container'))
+      .save('results.pdf');
   }
 
   _renderSecondResults(results) {
@@ -852,4 +868,12 @@ const app = new App();
   2) Fix image desyncing (haven't been able to replicate)
   3) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
   4) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
+
+09/20/2025
+  1) Finish implementing pdf saving functionality
+  2) Maybe rename certain variables like row and col.
+  3) Fix image desyncing (haven't been able to replicate)
+  4) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
+  5) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
+
 */

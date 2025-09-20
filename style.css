@@ -293,3 +293,9 @@ h1 {
   margin-left: 25px;
   font-size: 15px;
 }
+.results__save__btn {
+  background-color: white;
+  color: black;
+  margin: 15px;
+  padding: 10px;
+}
