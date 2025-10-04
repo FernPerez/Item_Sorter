@@ -608,8 +608,8 @@ class App {
     this.sorterContainer.insertAdjacentHTML(
       'afterend',
       `
+      <button class="results__save__btn">Save Results</button>
       <div class="results__container">
-        <button class="results__save__btn">Save Results</button>
         <div class="results__result__container--big results__result__container--first">
           <div class="results__result__img__container--big">
             <img src="${this.imgs.get(
@@ -636,8 +636,8 @@ class App {
         </div>
         ${this._renderSecondResults(results) || ''}
         ${this._renderRemainingResults(results) || ''}    
-        <button class="results__save__btn">Save Results</button>
       </div>
+      <button class="results__save__btn">Save Results</button>
       `
     );
     // Add save functionality to buttons
@@ -648,10 +648,17 @@ class App {
   }
 
   _saveResults() {
-    console.log('test');
-    html2pdf()
-      .from(document.querySelector('.results__container'))
-      .save('results.pdf');
+    const results = document.querySelector('.results__container');
+    html2canvas(results).then(function (canvas) {
+      const imageData = canvas.toDataURL('results/png');
+
+      const link = document.createElement('a');
+      link.href = imageData;
+      link.download = 'results.png';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   }
 
   _renderSecondResults(results) {
@@ -876,4 +883,10 @@ const app = new App();
   4) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
   5) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
 
+10/04/2025
+1) Styling
+2) Maybe rename certain variables like row and col.
+3) Fix image desyncing (haven't been able to replicate)
+4) There was a problem seemingly when doing two initial ties, then when the second tie is compared to a new item, selecting the new item would cause a problem. Look into. (haven't been able to replicate)
+5) BUG in findCompforChoice. Error with indexOf after a tie that I have not been able to replicate.
 */
