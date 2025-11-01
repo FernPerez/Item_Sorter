@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Sorter</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <!-- Custom CSS -->
     <link
       rel="stylesheet"
       href="./style.css"
@@ -15,13 +30,27 @@
     <script defer src="script.js"></script>
   </head>
   <body>
-    <div class="main__container">
+    <nav class="navbar navbar-expand-sm bg-dark">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link 1</a>
+        </li>
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="#">Link 2</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link 3</a>
+        </li> -->
+      </ul>
+    </nav>
+
+    <div class="container-fluid">
       <h1>Selection Sorter</h1>
       <div class="main__sub__container-index">
         <div class="main__sub__sub__container-index">
           <form name="indexForm" action="/sort.html" id="indexForm">
-            <input type="submit" />
-            <!-- <button id="start">Start</button> -->
+            <!-- <input type="submit" /> -->
+            <button id="start">Start</button>
           </form>
         </div>
       </div>
