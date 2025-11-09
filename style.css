@@ -71,17 +71,62 @@ h1 {
   transition: width 0.25s ease-in-out;
 }
 #main__sub__container {
-  background-color: rgb(212, 212, 212);
-  min-height: 80vh;
+  background-color: #3e3a3a;
+  min-height: 75vh;
   max-width: 95%;
-  margin: 2%;
+  margin-left: 5%;
+  margin-right: 5%;
   margin-top: 1%;
+  height: 75%;
   justify-items: center;
-  padding-top: 1px;
+  padding-top: 25px;
+  padding-left: 50px;
+  padding-right: 50px;
+  border-radius: 1.5%;
+  color: white;
 }
 
 #formContainer {
   margin-top: 50px;
+}
+
+#listFile {
+  padding: 0%;
+  height: max-content;
+  display: inline-block;
+  border: 1px solid black;
+  background-color: rgb(195, 254, 255);
+  border-radius: 2%;
+}
+
+#listFile::file-selector-button {
+  background-color: rgb(0, 251, 255);
+  color: rgb(0, 0, 0);
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 2%;
+}
+
+#imageFolder {
+  padding: 0%;
+  height: max-content;
+  display: inline-block;
+  border: 1px solid black;
+  background-color: rgb(195, 254, 255);
+  border-radius: 2%;
+}
+
+#imageFolder::file-selector-button {
+  background-color: rgb(0, 251, 255);
+  color: rgb(0, 0, 0);
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 2%;
+}
+
+#submit {
+  background-color: rgb(0, 251, 255);
+  color: black;
 }
 
 .main__sub__container-index {

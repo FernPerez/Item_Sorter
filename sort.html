@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Sorter</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Momo+Trust+Display&display=swap"
+      rel="stylesheet"
+    />
+    <!-- Bootstrap -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css"
+      integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N"
+      crossorigin="anonymous"
+    />
+    <!-- Custom CSS -->
     <link
       rel="stylesheet"
       href="./style.css"
@@ -17,63 +32,51 @@
     <script defer src="sorter.js"></script>
   </head>
   <body>
-    <div class="main__container">
+    <nav class="navbar navbar-expand-sm bg-dark">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#">Link 1</a>
+        </li>
+      </ul>
+    </nav>
+    <div class="container-fluid">
       <h1 id="title">Selection Sorter</h1>
       <div id="round__container">
         <h1 id="round__label">Start</h1>
       </div>
       <div id="main__sub__container">
-        <!-- <div class="progress__container">
-          <div class="progress__border">
-            <h3 class="progress__counter">50%</h3>
-            <div class="progress__bar w3-green"></div>
-          </div>
-        </div> -->
         <div id="formContainer">
           <h2>Welcome to the Selection Sorter</h2>
-          <h3>Please select a text file and type of selection being done.</h3>
+          <h4>Please select a text file and type of selection being done.</h4>
+          <br />
           <form name="indexForm" id="indexForm">
-            <label for="listFile"
-              >Select text file containing items separated by commas.</label
-            ><br />
-            <input type="file" id="listFile" required /><br />
-            <label for="itemType">Type of Item:</label><br />
-            <input type="text" id="itemType" name="itemType" required /><br />
-            <label for="imageFolder">Select Image Folder (Optional)</label
-            ><br />
-            <input
-              type="file"
-              id="imageFolder"
-              webkitdirectory
-              directory
-              multiple
-            /><br />
-            <input type="submit" />
-            <!-- <button id="start">Start</button> -->
+            <div class="mb-3">
+              <label for="listFile" class="form-label"
+                >Select text file containing items separated by commas.</label
+              ><br />
+              <input class="form-control" type="file" id="listFile" required />
+            </div>
+            <div class="mb-3">
+              <label for="itemType">Type of Item:</label><br />
+              <input type="text" id="itemType" name="itemType" required />
+            </div>
+            <div class="mb-3">
+              <label for="imageFolder" class="form-label"
+                >Select Image Folder (Optional)</label
+              ><br />
+              <input
+                class="form-control"
+                type="file"
+                id="imageFolder"
+                webkitdirectory
+                directory
+                multiple
+              />
+            </div>
+            <br />
+            <input type="submit" class="btn btn-primary" id="submit" />
           </form>
         </div>
-        <!-- <div class="sorter__container">
-          <div class="sorter__option__container">
-            <div class="results__result__img__container--big">
-              <img src="imgs/default.webp" class="sorter__img" id="img1" />
-            </div>
-            <button class="sorter__selection__button" id="btn1">
-              Choice 1
-            </button>
-          </div>
-          <div class="sorter__middle__container">
-            <button class="sorter__selection__button" id="tie">Tie</button>
-            <button class="sorter__selection__button" id="undo">Undo</button>
-          </div>
-          <div class="sorter__option__container">
-            <div class="results__result__img__container--big">
-              <img src="imgs/default.webp" class="sorter__img" id="img2" />
-            </div>
-            <button class="sorter__selection__button" id="btn2">
-              Choice 2
-            </button>
-          </div>
-        </div> -->
       </div>
     </div>
   </body>
